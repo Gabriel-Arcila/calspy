@@ -8,6 +8,7 @@ class Distribution:
         self.mean = 0
         self.variance = 0
         self.standard_deviation = 0
+        self.deviation_mean = 0
         self.check_types()
         self.check_probabilities()
         
@@ -65,7 +66,29 @@ class Distribution:
             self.calculate_variance()
             self.standard_deviation = sqrt(self.variance)
             return self.standard_deviation
+        return 0
+        
+    def calculate_list_deviation_mean(self):
+        if self.check_probabilities() and self.check_types():
+            self.calculate_mean();
+            list_deviation_mean = list()
+            deviation_mean = 0
+            for i in range(len(self.values)):
+                deviation_mean =  self.values[i] - self.mean
+                list_deviation_mean.append(deviation_mean)
+            return list_deviation_mean
+        return 0
     
+    def calculate_deviation_mean(self):
+        if self.check_probabilities() and self.check_types():
+            self.calculate_mean();
+            self.deviation_mean = 0
+            for i in range(len(self.values)):
+                self.deviation_mean +=  abs(self.values[i] - self.mean)
+            self.deviation_mean = (self.deviation_mean / len(self.values))
+            return self.deviation_mean
+        return 0
+
 
 class Distribution_Binomial (Distribution):
     def __init__ (self,value_success,value_failure,probability_success,probability_failure):
@@ -100,6 +123,37 @@ class Distribution_Binomial (Distribution):
     def calculate_standard_deviation(self,num_experiments:int):
         self.standard_deviation = sqrt(self.calculate_variance(num_experiments))
         return self.standard_deviation
+    
+
+class Distribution_without_probability(Distribution):
+    def __init__(self,values:list):
+        super().__init__(values,[1])
+        self.rango = 0
+
+    def calculate_rango(self):
+        self.rango = max(self.values) - min(self.values)
+        return self.rango
+    
+    def calculate_mean(self):
+        self.mean = 0
+        for i in range(len(self.values)):
+            self.mean += self.values[i]
+        self.mean = self.mean / len(self.values)
+        return self.mean
+    
+    def calculate_variance(self):
+        if super().check_types() and super().check_probabilities:
+            self.calculate_mean()
+            values_2 = [i ** 2 for i in self.values]
+            self.variance = (sum(values_2) / len(self.values)) - (self.mean ** 2)   
+            return self.variance
+        return 0
+class Distribution_Normal (Distribution):
+    pass
+
+class Distribution_Grouped(Distribution):
+    pass
+
 
 probability = (1/6)
 a = Distribution([1, 2, 3,4,5,6],[probability for i in range(6)])
@@ -115,6 +169,8 @@ print(a.distribution_function())
 print(a.calculate_mean())
 print(a.calculate_variance())
 print(a.calculate_standard_deviation())
+print(a.calculate_list_deviation_mean())
+print(a.calculate_deviation_mean())
 
 print("-------------------------------------")
 
@@ -124,3 +180,26 @@ print(c.distribution_bernoulli(10,8,"success") + c.distribution_bernoulli(10,8,"
 print(c.calculate_mean(10))
 print(c.calculate_variance(10))
 print(c.calculate_standard_deviation(10))
+
+print("-------------------------------------")
+
+d = Distribution_without_probability([0,2,4,5,8,10,10,15,38])
+e = Distribution_without_probability([8,7,9,8,8,10,9,7,4,9])
+f = Distribution_without_probability([0,2,4,5,8,10,10,15,38])
+
+print(d.calculate_rango())
+print(d.calculate_mean())
+print(d.calculate_list_deviation_mean())
+print(d.calculate_deviation_mean())
+
+print("-------------------------------------")
+
+print(e.calculate_mean())
+print(e.calculate_deviation_mean())
+
+print("-------------------------------------")
+
+print(f.calculate_mean())
+print(f.calculate_list_deviation_mean())
+print(f.calculate_deviation_mean())
+print(f.calculate_variance())
