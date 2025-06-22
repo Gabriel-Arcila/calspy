@@ -113,33 +113,41 @@ class Distribution_Binomial (Distribution):
         return 0
     
     def calculate_mean(self,num_experiments:int):
-        self.mean = num_experiments * self.probabilities[0]
-        return self.mean
+        if super().check_probabilities() and super().check_types():
+            self.mean = num_experiments * self.probabilities[0]
+            return self.mean
+        return 0
     
     def calculate_variance(self,num_experiments:int):
-        self.variance = num_experiments * self.probabilities[0] * self.probabilities[1]
-        return self.variance
+        if super().check_probabilities() and super().check_types():
+            self.variance = num_experiments * self.probabilities[0] * self.probabilities[1]
+            return self.variance
+        return 0
     
     def calculate_standard_deviation(self,num_experiments:int):
-        self.standard_deviation = sqrt(self.calculate_variance(num_experiments))
-        return self.standard_deviation
-    
-
+        if super().check_probabilities() and super().check_types():
+            self.standard_deviation = sqrt(self.calculate_variance(num_experiments))
+            return self.standard_deviation
+        return 0
 class Distribution_without_probability(Distribution):
     def __init__(self,values:list):
         super().__init__(values,[1])
         self.rango = 0
 
     def calculate_rango(self):
-        self.rango = max(self.values) - min(self.values)
-        return self.rango
+        if super().check_types() and super().check_probabilities:
+            self.rango = max(self.values) - min(self.values)
+            return self.rango
+        return 0
     
     def calculate_mean(self):
-        self.mean = 0
-        for i in range(len(self.values)):
-            self.mean += self.values[i]
-        self.mean = self.mean / len(self.values)
-        return self.mean
+        if super().check_types() and super().check_probabilities:
+            self.mean = 0
+            for i in range(len(self.values)):
+                self.mean += self.values[i]
+            self.mean = self.mean / len(self.values)
+            return self.mean
+        return 0
     
     def calculate_variance(self):
         if super().check_types() and super().check_probabilities:
@@ -148,11 +156,54 @@ class Distribution_without_probability(Distribution):
             self.variance = (sum(values_2) / len(self.values)) - (self.mean ** 2)   
             return self.variance
         return 0
+class Distribution_Grouped(Distribution):
+    def __init__(self,valuesGroup:list,frequency:list):
+        self.frequency = frequency
+        self.values = list()
+        self.valuesGroup = valuesGroup
+        band = self.check_list_of_lists()
+        if band:
+            for i in range(len(valuesGroup)):
+                self.values.append((valuesGroup[i][0] + valuesGroup[i][1]) / 2)
+            super().__init__(self.values,[1])
+
+    def check_list_of_lists(self):
+        band_1 = all(isinstance(i, (list)) for i in self.valuesGroup)
+        band_2 = True
+        for i in range(len(self.valuesGroup)):
+            band_2 = len(self.valuesGroup[i]) == 2
+            if not(band_2):
+                break
+        return (band_1 and band_2)
+    
+    def calculate_mean(self):
+        if super().check_types() and super().check_probabilities() and self.check_list_of_lists():
+            self.mean = 0
+            for i in range(len(self.frequency)):
+                self.mean += self.values[i] * self.frequency[i]
+            self.mean = self.mean / sum(self.frequency)
+            return self.mean
+
+    def calculate_list_deviation_mean(self):
+        if super().check_types() and super().check_probabilities() and self.check_list_of_lists():
+            self.calculate_mean();
+            list_deviation_mean = list()
+            deviation_mean = 0
+            for i in range(len(self.frequency)):
+                deviation_mean =  abs(self.values[i] - self.mean) * self.frequency[i]
+                list_deviation_mean.append(deviation_mean)
+            return list_deviation_mean
+        return 0
+    
+    def calculate_deviation_mean(self):
+        if super().check_types() and super().check_probabilities() and self.check_list_of_lists():
+            list_deviation_mean = self.calculate_list_deviation_mean()
+            self.deviation_mean = sum(list_deviation_mean) / sum(self.frequency)
+            return self.deviation_mean
+        return 0
 class Distribution_Normal (Distribution):
     pass
 
-class Distribution_Grouped(Distribution):
-    pass
 
 
 probability = (1/6)
@@ -203,3 +254,12 @@ print(f.calculate_mean())
 print(f.calculate_list_deviation_mean())
 print(f.calculate_deviation_mean())
 print(f.calculate_variance())
+
+print("-------------------------------------")
+
+valuesGroup = [[160,170],[170,180],[180,190],[190,200],[200,210]]
+frequency = [1,2,4,3,2] 
+g = Distribution_Grouped(valuesGroup, frequency)
+print(g.calculate_mean())
+print(g.calculate_list_deviation_mean())
+print(g.calculate_deviation_mean())
