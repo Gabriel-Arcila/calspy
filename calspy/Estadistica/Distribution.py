@@ -135,13 +135,13 @@ class Distribution_without_probability(Distribution):
         self.rango = 0
 
     def calculate_rango(self):
-        if super().check_types() and super().check_probabilities:
+        if super().check_types() and super().check_probabilities():
             self.rango = max(self.values) - min(self.values)
             return self.rango
         return 0
     
     def calculate_mean(self):
-        if super().check_types() and super().check_probabilities:
+        if super().check_types() and super().check_probabilities():
             self.mean = 0
             for i in range(len(self.values)):
                 self.mean += self.values[i]
@@ -150,11 +150,18 @@ class Distribution_without_probability(Distribution):
         return 0
     
     def calculate_variance(self):
-        if super().check_types() and super().check_probabilities:
+        if super().check_types() and super().check_probabilities():
             self.calculate_mean()
             values_2 = [i ** 2 for i in self.values]
             self.variance = (sum(values_2) / len(self.values)) - (self.mean ** 2)   
             return self.variance
+        return 0
+    
+    def calculate_standard_deviation(self):
+        if super().check_probabilities() and super().check_types():
+            self.calculate_variance()
+            self.standard_deviation = sqrt(self.variance) 
+            return self.standard_deviation
         return 0
 class Distribution_Grouped(Distribution):
     def __init__(self,valuesGroup:list,frequency:list):
@@ -200,6 +207,31 @@ class Distribution_Grouped(Distribution):
             list_deviation_mean = self.calculate_list_deviation_mean()
             self.deviation_mean = sum(list_deviation_mean) / sum(self.frequency)
             return self.deviation_mean
+        return 0
+    
+    def calculate_list_variance(self):
+        if super().check_types() and super().check_probabilities() and self.check_list_of_lists():
+            list_variance = list()
+            variance = 0
+            for i in range(len(self.frequency)):
+                variance =  (self.values[i] ** 2) * self.frequency[i]
+                list_variance.append(variance)
+            return list_variance
+        return 0
+    
+    def calculate_variance(self):
+        if super().check_types() and super().check_probabilities() and self.check_list_of_lists():
+            self.calculate_mean();
+            list_variance = self.calculate_list_variance()
+            self.variance = (sum(list_variance) / sum(self.frequency)) - (self.mean ** 2)
+            return self.variance
+        return 0
+    
+    def calculate_standard_deviation(self):
+        if super().check_probabilities() and super().check_types() and self.check_list_of_lists():
+            self.calculate_variance()
+            self.standard_deviation = sqrt(self.variance) 
+            return self.standard_deviation
         return 0
 class Distribution_Normal (Distribution):
     pass
@@ -263,3 +295,6 @@ g = Distribution_Grouped(valuesGroup, frequency)
 print(g.calculate_mean())
 print(g.calculate_list_deviation_mean())
 print(g.calculate_deviation_mean())
+print(g.calculate_list_variance())
+print(g.calculate_variance())
+print(g.calculate_standard_deviation())
