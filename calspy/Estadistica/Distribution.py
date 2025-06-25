@@ -1,4 +1,5 @@
 from math import sqrt,factorial
+from collections import Counter
 
 class Distribution:
     def __init__(self,values:list,probabilities:list):
@@ -163,6 +164,36 @@ class Distribution_without_probability(Distribution):
             self.standard_deviation = sqrt(self.variance) 
             return self.standard_deviation
         return 0
+    
+    def calculate_dictionary_absolute_frequency(self):
+        sort_values = sorted(self.values)
+        return dict(Counter(sort_values))
+    
+    def calculate_dictionary_relative_frequency(self):
+        dictionary_relative_frequency = self.calculate_dictionary_absolute_frequency();
+        total = len(self.values)
+        for key in dictionary_relative_frequency:
+            dictionary_relative_frequency[key] = dictionary_relative_frequency[key] / total
+        return dictionary_relative_frequency
+    
+    def calculate_dictionary_cumulative_frequency(self):
+        dictionary_cumulative_frequency = self.calculate_dictionary_absolute_frequency()
+        sum_value = 0
+        for key in dictionary_cumulative_frequency:
+            dictionary_cumulative_frequency[key] += sum_value
+            sum_value = dictionary_cumulative_frequency[key]
+        return dictionary_cumulative_frequency
+
+    def calculate_dictionary_cumulative_relative_frequency(self):
+        dictionary_cumulative_relative_frequency = self.calculate_dictionary_relative_frequency()
+        sum_value = 0
+        for key in dictionary_cumulative_relative_frequency:
+            dictionary_cumulative_relative_frequency[key] += sum_value
+            sum_value = dictionary_cumulative_relative_frequency[key]
+        return dictionary_cumulative_relative_frequency
+
+
+
 class Distribution_Grouped(Distribution):
     def __init__(self,valuesGroup:list,frequency:list):
         self.frequency = frequency
@@ -298,3 +329,11 @@ print(g.calculate_deviation_mean())
 print(g.calculate_list_variance())
 print(g.calculate_variance())
 print(g.calculate_standard_deviation())
+
+print("-------------------------------------")
+
+h = Distribution_without_probability([1,1,2,0,3,2,1,4,2,3,1,0,0,1,2])
+print(h.calculate_dictionary_absolute_frequency())
+print(h.calculate_dictionary_relative_frequency())
+print(h.calculate_dictionary_cumulative_frequency())
+print(h.calculate_dictionary_cumulative_relative_frequency())
