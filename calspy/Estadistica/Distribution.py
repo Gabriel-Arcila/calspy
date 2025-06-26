@@ -1,4 +1,4 @@
-from math import sqrt,factorial
+from math import sqrt,factorial,pow
 from collections import Counter
 
 class Distribution:
@@ -134,6 +134,7 @@ class Distribution_without_probability(Distribution):
     def __init__(self,values:list):
         super().__init__(values,[1])
         self.rango = 0
+        self.geometric_mean = 0
 
     def calculate_rango(self):
         if super().check_types() and super().check_probabilities():
@@ -148,6 +149,15 @@ class Distribution_without_probability(Distribution):
                 self.mean += self.values[i]
             self.mean = self.mean / len(self.values)
             return self.mean
+        return 0
+    
+    def calculate_geometric_mean(self):
+        if super().check_types() and super().check_probabilities():
+            self.geometric_mean = 1
+            for i in range(len(self.values)):
+                self.geometric_mean *= self.values[i]
+            self.geometric_mean = pow(self.geometric_mean,1/len(self.values))
+            return self.geometric_mean
         return 0
     
     def calculate_variance(self):
@@ -166,33 +176,93 @@ class Distribution_without_probability(Distribution):
         return 0
     
     def calculate_dictionary_absolute_frequency(self):
-        sort_values = sorted(self.values)
-        return dict(Counter(sort_values))
+        if super().check_probabilities() and super().check_types():
+            sort_values = sorted(self.values)
+            return dict(Counter(sort_values))
+        return dict()
     
     def calculate_dictionary_relative_frequency(self):
-        dictionary_relative_frequency = self.calculate_dictionary_absolute_frequency();
-        total = len(self.values)
-        for key in dictionary_relative_frequency:
-            dictionary_relative_frequency[key] = dictionary_relative_frequency[key] / total
-        return dictionary_relative_frequency
+        if super().check_probabilities() and super().check_types():
+            dictionary_relative_frequency = self.calculate_dictionary_absolute_frequency();
+            total = len(self.values)
+            for key in dictionary_relative_frequency:
+                dictionary_relative_frequency[key] = dictionary_relative_frequency[key] / total
+            return dictionary_relative_frequency
+        return dict()
     
     def calculate_dictionary_cumulative_frequency(self):
-        dictionary_cumulative_frequency = self.calculate_dictionary_absolute_frequency()
-        sum_value = 0
-        for key in dictionary_cumulative_frequency:
-            dictionary_cumulative_frequency[key] += sum_value
-            sum_value = dictionary_cumulative_frequency[key]
-        return dictionary_cumulative_frequency
+        if super().check_probabilities() and super().check_types():
+            dictionary_cumulative_frequency = self.calculate_dictionary_absolute_frequency()
+            sum_value = 0
+            for key in dictionary_cumulative_frequency:
+                dictionary_cumulative_frequency[key] += sum_value
+                sum_value = dictionary_cumulative_frequency[key]
+            return dictionary_cumulative_frequency
+        return dict()
 
     def calculate_dictionary_cumulative_relative_frequency(self):
-        dictionary_cumulative_relative_frequency = self.calculate_dictionary_relative_frequency()
-        sum_value = 0
-        for key in dictionary_cumulative_relative_frequency:
-            dictionary_cumulative_relative_frequency[key] += sum_value
-            sum_value = dictionary_cumulative_relative_frequency[key]
-        return dictionary_cumulative_relative_frequency
+        if super().check_probabilities() and super().check_types():
+            dictionary_cumulative_relative_frequency = self.calculate_dictionary_relative_frequency()
+            sum_value = 0
+            for key in dictionary_cumulative_relative_frequency:
+                dictionary_cumulative_relative_frequency[key] += sum_value
+                sum_value = dictionary_cumulative_relative_frequency[key]
+            return dictionary_cumulative_relative_frequency
+        return dict()
+    
+    def calculate_list_mode(self):
+        dictionary_absolute_frequency = self.calculate_dictionary_absolute_frequency()
+        maxi = 0
+        list_mode = []
+        mode = 0
+        mode_2 = 0 
+        for key in dictionary_absolute_frequency:
+            if dictionary_absolute_frequency[key] > maxi:
+                maxi = dictionary_absolute_frequency[key]
+                list_mode.clear()
+                list_mode.append(key)
+            elif dictionary_absolute_frequency[key] == maxi:
+                list_mode.append(key)
+        return list_mode
+    
+    def calculate_median(self):
+        dictionary_cumulative_frequency = self.calculate_dictionary_cumulative_frequency()
+        last_index = len(dictionary_cumulative_frequency) - 1
+        total_frequency = dictionary_cumulative_frequency[last_index]
+        mean = 0
+        mean_2 = 0
+        median = 0
+        median_2 = 0
+        is_pair = (total_frequency % 2) == 0
+        if is_pair:
+            mean = total_frequency/2
+            mean_2 += 1
+        else:
+            total_frequency += 1
+            mean = total_frequency/2
+        list_keys = dictionary_cumulative_frequency.keys();
 
+        for i in range(len(list_keys) - 1):
+            key = list_keys[i]
+            key_2 = list_keys[i+1]
+            value = (dictionary_cumulative_frequency[key])
+            velue_2 = (dictionary_cumulative_frequency[key_2])
+            if value >= mean and velue_2 < mean:
+                median = key
+                break;
 
+        if is_pair:
+            for i in range(len(list_keys) - 1):
+                key = list_keys[i]
+                key_2 = list_keys[i+1]
+                value = (dictionary_cumulative_frequency[key])
+                velue_2 = (dictionary_cumulative_frequency[key_2])
+                if value >= mean_2 and velue_2 < mean_2:
+                    median_2 = key
+                    break;
+            return (median + median_2)/2
+        else:
+            return median
 
 class Distribution_Grouped(Distribution):
     def __init__(self,valuesGroup:list,frequency:list):
@@ -337,3 +407,9 @@ print(h.calculate_dictionary_absolute_frequency())
 print(h.calculate_dictionary_relative_frequency())
 print(h.calculate_dictionary_cumulative_frequency())
 print(h.calculate_dictionary_cumulative_relative_frequency())
+print(h.calculate_list_mode())
+
+print("-------------------------------------")
+
+i = Distribution_without_probability([2,2,4])
+print(i.calculate_geometric_mean())
